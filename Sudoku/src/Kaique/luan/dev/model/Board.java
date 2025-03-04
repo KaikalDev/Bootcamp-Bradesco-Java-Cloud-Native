@@ -1,8 +1,8 @@
 package Kaique.luan.dev.model;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
+import static Kaique.luan.dev.model.GameStatusEnum.*;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -20,22 +20,21 @@ public class Board {
                         s -> !s.isFixed() && nonNull(s.getActual())
                 )
         ) {
-            return GameStatusEnum.NON_STARTED;
+            return NON_STARTED;
         }
         return spaces.stream().flatMap(Collection::stream)
                 .anyMatch(
                         s -> isNull(s.getActual())
-                ) ? GameStatusEnum.INCOMPLETE : GameStatusEnum.COMPLETE;
+                ) ? INCOMPLETE : COMPLETE;
     }
 
     public boolean hasErrors() {
-        if(getStatus() == GameStatusEnum.NON_STARTED) {
+        if(getStatus() == NON_STARTED){
             return false;
         }
+
         return spaces.stream().flatMap(Collection::stream)
-                .anyMatch(
-                        s -> nonNull(s.getActual()) && s.getActual().equals(s.getExpected())
-                );
+                .anyMatch(s -> nonNull(s.getActual()) && !s.getActual().equals(s.getExpected()));
     }
 
     public boolean changeValue(final int col, final int row, final Integer value) {
@@ -54,7 +53,7 @@ public class Board {
             return false;
         }
 
-        space.setActual(null);
+        space.clearSpace();
         return true;
     }
 
@@ -63,7 +62,7 @@ public class Board {
     }
 
     public boolean gameIsFinished() {
-        return !hasErrors() && getStatus() == GameStatusEnum.COMPLETE;
+        return !hasErrors() && getStatus().equals(COMPLETE);
     }
 
     public List<List<Space>> getSpaces() {
